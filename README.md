@@ -53,6 +53,8 @@ Calibrate this task with Linus Level before coding.
 
 As the dial rises, the agent should assume less, verify more, and take less unilateral control over material product, contract, architecture, data, auth, and compatibility decisions.
 
+<a id="copy-paste-install-prompts"></a>
+
 ## 📦 Copy/Paste Install Prompts
 
 Paste one of these into your coding agent to have it install Linus Level from this repository.
