@@ -57,14 +57,14 @@ As the dial rises, the agent should assume less, verify more, and take less unil
 
 Paste one of these into your coding agent to have it install Linus Level from this repository.
 
-After installing, the agent should also ask whether you want a default Linus Level added to this workspace's `AGENTS.md` or `CLAUDE.md`. That default helps after context compaction, because the model can rediscover the setting from repo instructions instead of relying on conversation memory.
+After installing, the agent should also ask whether you want a default Linus Level added to this workspace's `AGENTS.md` or `CLAUDE.md`. Hook-enabled plugins preserve an explicit level inside a session, while repo instructions remain the durable source across new sessions, prose-only installs, disabled hooks, and other agents.
 
 ### Codex
 
 ```text
-Install the Linus Level skill from https://github.com/rsoffer/linus-level-skill.
+Install the Linus Level plugin from https://github.com/rsoffer/linus-level-skill.
 
-Please clone or fetch the repository, install the canonical skill directory `skills/linus-level` into my Codex skills directory at `${CODEX_HOME:-$HOME/.codex}/skills/linus-level`, and verify that the skill is discoverable afterward. Preserve the `SKILL.md`, `references/`, `agents/`, and `assets/` files. Do not expose or modify any secrets.
+Please install the full Codex plugin so its canonical skill and `hooks/hooks.json` lifecycle guardrails are both available. Verify that the `linus-level` skill is discoverable and inspect the hooks with `/hooks`; do not bypass Codex's hook trust review. If this Codex surface cannot install plugins, fall back to installing `skills/linus-level` at `${CODEX_HOME:-$HOME/.codex}/skills/linus-level` and clearly note that this is prose-only mode. Do not expose or modify any secrets.
 
 After installation, ask me whether I want to add a default Linus Level instruction to this workspace's `AGENTS.md`. If I say yes, add or update the file with a line like:
 
@@ -76,7 +76,7 @@ Unless the user explicitly states otherwise in the current prompt, invoke the Li
 ```text
 Install the Linus Level Claude Code plugin from https://github.com/rsoffer/linus-level-skill.
 
-Please add the repository as a Claude Code plugin marketplace, install `linus-level@linus-level-skills`, reload plugins if needed, and verify that `/linus-level` or `/linus-level:linus-level` resolves.
+Please add the repository as a Claude Code plugin marketplace, install `linus-level@linus-level-skills`, reload plugins if needed, and verify that `/linus-level` or `/linus-level:linus-level` resolves. Inspect `/hooks` and confirm the plugin lifecycle hooks are loaded.
 
 After installation, ask me whether I want to add a default Linus Level instruction to this workspace's `CLAUDE.md` or `AGENTS.md`. If I say yes, add or update the file with a line like:
 
@@ -97,7 +97,38 @@ Unless the user explicitly states otherwise in the current prompt, invoke the Li
 
 ## 🪶 Context-Light By Design
 
-Linus Level is modular on purpose. The main skill stays small, then loads deeper references only when the task calls for them: level-band standards for code work, security standards for sensitive surfaces, question patterns for ambiguity, and the low-level playbook for fast prototypes.
+Linus Level is modular on purpose. The main skill carries the complete operating loop and judgment model, then loads deeper references only when the task calls for them: level-band standards for code work, security standards for sensitive surfaces, question patterns for ambiguity, and the low-level playbook for fast prototypes.
+
+The prose is the implementation. Hooks are guardrails, not a replacement for judgment.
+
+## 🪝 Lifecycle Guardrails
+
+The Codex and Claude Code plugin installs share one lightweight command-hook runtime:
+
+| Event | Guardrail |
+|---|---|
+| `UserPromptSubmit` | Recognize one explicit Linus Level, persist only the numeric session setting, and inject a compact reminder to load the prose. |
+| `SessionStart` | Restore same-session state after resume or compaction; `/clear` removes it. |
+| `SubagentStart` | Give delegated work the same active level without copying the full standards ladder into hook output. |
+| `Stop` | Catch a missing, wrong-level, or internally contradictory final checkpoint, with one-retry protection. |
+| `SessionEnd` | Preserve resumable state, remove it on clear or logout, and prevent one-turn checkpoint settings from leaking forward. |
+
+The default plugin intentionally does **not** register `PreToolUse` or `PostToolUse`. Spawning a hook around normal shell, edit, or MCP calls would add latency and tempt the runtime to duplicate judgment already expressed better in prose.
+
+The runtime stores no prompt or transcript content. Its state contains only the selected level and narrow delivery-control metadata under the plugin data directory. State is removed immediately on clear or logout and expires after 30 days. Skill-only installs, hosted skill uploads, and other `SKILL.md` agents continue to work from the same prose and references without hooks.
+
+The hook runtime uses only the Python standard library and supports Python 3.8+.
+If Python is unavailable, the prose skill still works and the CLI reports the
+hook failure. On Windows, Codex uses the bundled `py -3` command override.
+Claude Code does not currently support a separate Windows command override, so
+its optional runtime requires `python3` to be available on `PATH`; the prose
+skill remains fully usable without it.
+
+For development, run the primary repeatable validation:
+
+```bash
+bash scripts/validate.sh
+```
 
 ## 🔢 Decimal Points Matter
 
@@ -119,7 +150,7 @@ Rule of thumb:
 
 ## ❓ Question Behavior
 
-Every Linus Level response must include a compact checkpoint. The agent first takes stock of assumptions it is making, then states whether approval is needed and which open questions remain:
+Every substantive final, blocking, decision, or approval response includes a compact checkpoint. Routine progress updates stay lightweight. Before writing the checkpoint, the agent takes stock of assumptions, approval state, and unresolved input:
 
 ```text
 LL X · No approval · No open questions
@@ -174,7 +205,7 @@ The skill teaches coding agents which standards become expected or non-negotiabl
 | Follow system, user, repo, and tool instructions | Always |
 | Ask before bypassing repo rules | Always |
 | No secrets, malicious behavior, or hidden partial completion | Always |
-| Include a compact checkpoint in every response: inventory assumptions first, then state approval and open-input status, expanding for material surfaced states and never saying `No approval` or `No open questions` when approval, confirmation, option choice, or a material decision remains | Always |
+| Include a compact checkpoint in every substantive final or user-gated response: inventory assumptions first, then state approval and open-input status truthfully | Always |
 | Keep changes scoped | `5.0+` |
 | Match existing style before inventing patterns | `5.0+` |
 | Do not silently hide failures | `5.0+` |
@@ -279,7 +310,7 @@ The agent should treat data shape and billing authority as high-risk, ask clarif
 
 ## 🧭 Default Workspace Setting
 
-Linus Level works best when a project carries its normal default in repo instructions. The main reason is context compaction: long agent sessions eventually get summarized, and that summary can lose the exact Linus Level the model was supposed to keep using. A short line in `AGENTS.md`, `CLAUDE.md`, or the equivalent repo instructions file gives the agent a durable source of truth it can reload after compaction, restarts, or handoffs.
+Linus Level works best when a project carries its normal default in repo instructions. Plugin hooks preserve an explicit selection through turns and compaction, but they are intentionally ephemeral and optional. A short line in `AGENTS.md`, `CLAUDE.md`, or the equivalent repo instructions file gives every supported agent a durable source of truth across new sessions, restarts, handoffs, and prose-only installs.
 
 Add this to `AGENTS.md`, `CLAUDE.md`, or the equivalent agent instructions file for the workspace:
 
@@ -295,8 +326,8 @@ Linus Level is distributed as a portable `SKILL.md` repository today. It also in
 
 | Harness | Current path | Notes |
 |---|---|---|
-| Codex | GitHub repo / local skill install | Uses `.codex-plugin/plugin.json` plus `skills/linus-level/`. |
-| Claude Code | Repository marketplace | Uses `.claude-plugin/marketplace.json` and `.claude-plugin/plugin.json`. |
+| Codex | Full plugin or local skill install | The plugin adds shared lifecycle hooks; skill-only installs remain prose-only. |
+| Claude Code | Repository marketplace or standalone skill | The plugin adds the same shared lifecycle hooks; standalone skills remain prose-only. |
 | OpenAI hosted skills | Zip upload | Package `skills/linus-level/` with `scripts/package-skill.sh`. |
 | Claude custom skills | Zip or project/user skill folder | Same canonical `skills/linus-level/` directory. |
 | Gemini CLI | Extension install | Uses root `gemini-extension.json` plus `skills/linus-level/`. |
@@ -316,10 +347,14 @@ assets/
 skills/linus-level/SKILL.md
 skills/linus-level/agents/openai.yaml
 skills/linus-level/references/
+hooks/hooks.json
+hooks/linus_runtime.py
 .codex-plugin/plugin.json
+.claude-plugin/plugin.json
+tests/test_linus_runtime.py
 ```
 
-The `.codex-plugin/` directory is a Codex compatibility wrapper. The canonical skill is `skills/linus-level/`.
+The canonical, portable behavior is in `skills/linus-level/`. Codex and Claude Code discover the same `hooks/hooks.json` when the repository is installed as a plugin.
 
 ## Claude Code Install
 
@@ -336,6 +371,10 @@ The plugin exposes the skill as:
 ```text
 /linus-level:linus-level
 ```
+
+The plugin also loads `hooks/hooks.json`. Use `/hooks` to verify the
+`SessionStart`, `UserPromptSubmit`, `SubagentStart`, `Stop`, and `SessionEnd`
+handlers. A standalone skill install does not load those hooks.
 
 For local development, load the repo directly:
 
@@ -372,7 +411,9 @@ For skill-only use in Codex, copy or symlink `skills/linus-level` into:
 ${CODEX_HOME:-$HOME/.codex}/skills/linus-level
 ```
 
-For local Codex plugin presentation, clone or copy this repository into a plugin directory:
+Skill-only mode includes the full prose and references but not lifecycle hooks. For
+the hook-enabled Codex experience, clone or copy this repository into a local
+plugin directory:
 
 ```bash
 mkdir -p ~/plugins
@@ -403,6 +444,10 @@ For a home-local marketplace, `./plugins/linus-level` resolves to:
 ```
 
 See `marketplace.example.json` for a complete sample marketplace file.
+
+After enabling the plugin, open `/hooks` in Codex, review the definitions, and
+trust them. Codex intentionally skips new or changed non-managed hooks until their
+current definitions are trusted.
 
 ## Gemini CLI Install
 

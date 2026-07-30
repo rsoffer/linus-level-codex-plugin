@@ -1,11 +1,9 @@
 {
   "name": "linus-level",
-  "version": "0.1.15",
-  "description": "A memorable agent strictness dial for tuning autonomy, questioning, security posture, and engineering discipline from vibe mode to maintainer mode.",
+  "version": "0.2.0",
+  "description": "A 1.0-10.0 engineering working-mode dial with portable prose and lifecycle guardrails for Codex and Claude Code.",
   "author": {
-    "name": "Ron Soffer",
-    "email": "",
-    "url": ""
+    "name": "Ron Soffer"
   },
   "homepage": "https://github.com/rsoffer/linus-level-skill",
   "repository": "git@github.com:rsoffer/linus-level-skill.git",
@@ -24,17 +22,16 @@
   "interface": {
     "displayName": "Linus Level",
     "shortDescription": "Tune coding agents from vibe mode to maintainer mode.",
-    "longDescription": "Linus Level gives Codex, Claude, and other coding agents a memorable 1.0-10.0 engineering strictness dial, inspired by software culture's idea of exacting maintainer review. It calibrates autonomy, assumption budget, clarifying questions, verification, security posture, DRY discipline, and maintainer-grade caution for each software task.",
+    "longDescription": "Linus Level gives Codex, Claude Code, and other coding agents a memorable 1.0-10.0 engineering working-mode dial. Portable prose calibrates agency, assumption budget, decision ownership, questioning, verification, and security; optional Codex and Claude Code lifecycle hooks preserve the active level and validate delivery without replacing model judgment.",
     "developerName": "Ron Soffer",
     "category": "Productivity",
     "capabilities": [
       "Skill",
+      "Lifecycle Hooks",
       "Engineering",
       "Code Review"
     ],
     "websiteURL": "https://github.com/rsoffer/linus-level-skill",
-    "privacyPolicyURL": "",
-    "termsOfServiceURL": "",
     "defaultPrompt": [
       "Use Linus Level 8.5 for this production codebase task.",
       "Use Linus Level 2 for fast creative prototyping.",

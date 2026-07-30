@@ -3,13 +3,14 @@
   "owner": {
     "name": "Ron Soffer"
   },
-  "description": "Claude Code plugins for calibrated engineering strictness and maintainer-grade coding workflows.",
-  "version": "0.1.15",
+  "metadata": {
+    "description": "Claude Code plugins for calibrated engineering working modes and maintainer-grade workflows."
+  },
   "plugins": [
     {
       "name": "linus-level",
       "source": "./",
-      "description": "Tune Claude Code from fast prototype mode to careful maintainer mode with a 1.0-10.0 engineering strictness dial.",
+      "description": "Tune Claude Code with a 1.0-10.0 engineering working-mode dial and lightweight lifecycle guardrails.",
       "author": {
         "name": "Ron Soffer"
       },

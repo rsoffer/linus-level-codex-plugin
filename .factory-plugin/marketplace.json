@@ -7,7 +7,7 @@
   "plugins": [
     {
       "name": "linus-level",
-      "description": "Tune Droid from fast prototype mode to careful maintainer mode with a 1.0-10.0 engineering strictness dial.",
+      "description": "Tune Droid from fast prototype mode to careful maintainer mode with a 1.0-10.0 engineering working-mode dial.",
       "source": "./",
       "category": "Productivity"
     }
