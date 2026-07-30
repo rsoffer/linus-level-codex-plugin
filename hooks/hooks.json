@@ -1,0 +1,69 @@
+{
+  "description": "Keep the active Linus Level stable across turns, compaction, and subagents, and validate final checkpoints.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact|fork",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/linus_runtime.py\"",
+            "commandWindows": "py -3 \"%CLAUDE_PLUGIN_ROOT%\\hooks\\linus_runtime.py\"",
+            "timeout": 3,
+            "statusMessage": "Restoring Linus Level"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/linus_runtime.py\"",
+            "commandWindows": "py -3 \"%CLAUDE_PLUGIN_ROOT%\\hooks\\linus_runtime.py\"",
+            "timeout": 3,
+            "statusMessage": "Calibrating Linus Level"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/linus_runtime.py\"",
+            "commandWindows": "py -3 \"%CLAUDE_PLUGIN_ROOT%\\hooks\\linus_runtime.py\"",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/linus_runtime.py\"",
+            "commandWindows": "py -3 \"%CLAUDE_PLUGIN_ROOT%\\hooks\\linus_runtime.py\"",
+            "timeout": 3
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/linus_runtime.py\"",
+            "commandWindows": "py -3 \"%CLAUDE_PLUGIN_ROOT%\\hooks\\linus_runtime.py\"",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
+}

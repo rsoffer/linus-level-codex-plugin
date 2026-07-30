@@ -5,13 +5,13 @@
   },
   "metadata": {
     "description": "GitHub Copilot CLI plugins for calibrated engineering strictness and maintainer-grade coding workflows.",
-    "version": "0.1.15"
+    "version": "0.2.0"
   },
   "plugins": [
     {
       "name": "linus-level",
-      "description": "Tune Copilot CLI from fast prototype mode to careful maintainer mode with a 1.0-10.0 engineering strictness dial.",
-      "version": "0.1.15",
+      "description": "Tune Copilot CLI from fast prototype mode to careful maintainer mode with a 1.0-10.0 engineering working-mode dial.",
+      "version": "0.2.0",
       "source": "./"
     }
   ]

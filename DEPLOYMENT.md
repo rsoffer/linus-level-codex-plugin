@@ -1,10 +1,18 @@
 # Deployment
 
-This repository supports three distribution shapes:
+This repository supports four distribution shapes:
 
 - Hosted skill upload for OpenAI and Claude
 - Filesystem installs for Codex, Claude Code, and other `SKILL.md`-aware agent workflows
+- Hook-enabled Codex and Claude Code plugin installs
 - GitHub release distribution
+
+The canonical prose lives under `skills/linus-level/` and works in every
+distribution. The shared runtime under `hooks/` is an optional plugin guardrail;
+hosted and filesystem skill-only installs do not execute it.
+The hook runtime requires Python 3.8+ and has no third-party dependencies.
+Claude Code on Windows requires `python3` on `PATH` for the optional hook
+runtime; Codex uses the plugin's `py -3` Windows command override.
 
 ## Marketplace Inventory
 
@@ -42,16 +50,22 @@ Use this checklist when publishing or submitting Linus Level somewhere new:
 2. Verify `SKILL.md` frontmatter has the right `name`, `description`, and compatible file layout.
 3. Validate the target wrapper:
    - Claude Code: `.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json`
-   - Codex: `.codex-plugin/plugin.json`
+   - Codex: `.codex-plugin/plugin.json` and `hooks/hooks.json`
    - Gemini: `gemini-extension.json`
    - Factory Droid: `.factory-plugin/plugin.json` and `.factory-plugin/marketplace.json`
    - GitHub Copilot CLI: `.github/plugin/marketplace.json`
-4. Test a local install before advertising the path.
-5. Update docs when the install path changes.
-6. Bump version only when the target marketplace requires version-based updates or the skill behavior changes.
+4. Run `bash scripts/validate.sh`.
+5. Test a local install before advertising the path. For Codex and Claude Code
+   plugins, inspect `/hooks` and exercise activation, resume, subagent inheritance,
+   Claude-shaped payloads without Codex-only fields, checkpoint validation,
+   explicit clear/logout cleanup, and stale-state expiry.
+6. Update docs when the install path changes.
+7. Bump version only when the target marketplace requires version-based updates or the skill behavior changes.
 
 References:
 
+- Codex hooks: `https://developers.openai.com/codex/config-advanced#hooks`
+- Claude Code hooks: `https://code.claude.com/docs/en/hooks`
 - Claude Code marketplace docs: `https://code.claude.com/docs/en/plugin-marketplaces`
 - Claude Code install docs: `https://code.claude.com/docs/en/discover-plugins`
 - OpenAI plugin examples: `https://github.com/openai/plugins`
@@ -82,7 +96,9 @@ OpenAI's Skills API uploads the skill bundle itself, not the whole Codex compati
 skills/linus-level/
 ```
 
-That folder contains the required `SKILL.md` frontmatter plus the reference files. The `.codex-plugin/` wrapper is only for Codex plugin distribution and local marketplace presentation.
+That folder contains the required `SKILL.md` frontmatter plus the reference files.
+The hosted bundle excludes `hooks/`; hooks are a Codex and Claude Code plugin
+capability, while the skill prose remains fully functional without them.
 
 Existing hosted OpenAI skill:
 
@@ -213,7 +229,7 @@ Repository: https://github.com/rsoffer/linus-level-skill
 Marketplace install source: rsoffer/linus-level-skill
 Category: Productivity
 License: MIT
-Description: Tune Claude Code from fast prototype mode to careful maintainer mode with a 1.0-10.0 engineering strictness dial.
+Description: Tune Claude Code with a 1.0-10.0 engineering working-mode dial and lightweight lifecycle guardrails.
 ```
 
 Before submission, confirm:
@@ -224,6 +240,8 @@ Before submission, confirm:
 - local marketplace install works
 - the release tag contains the Claude plugin files
 - the plugin version changed since the previous release
+- `/hooks` shows the shared plugin runtime events
+- `bash scripts/validate.sh` passes
 
 ### Claude.ai Custom Skill Upload
 
@@ -287,7 +305,9 @@ Claude.ai custom skill upload and Claude Code plugin marketplace distribution ar
 
 Recommended repository name: `linus-level-skill`.
 
-This repository is primarily a skill repo. It also includes `.codex-plugin/plugin.json` as a Codex compatibility wrapper. To publish a GitHub release:
+This repository keeps portable behavior in the canonical skill and adds shared
+Codex/Claude Code guardrails through the plugin-level `hooks/` directory. To
+publish a GitHub release:
 
 1. Commit the skill files.
 2. Push to `git@github.com:rsoffer/linus-level-skill.git`.

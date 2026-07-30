@@ -1,6 +1,6 @@
 interface:
   display_name: "Linus Level"
-  short_description: "Tune agent working mode for real engineering work"
+  short_description: "Tune agency, rigor, and verification by task risk"
+  default_prompt: "Use $linus-level at Linus Level 8.5 for this production codebase task."
   icon_small: "./assets/linus-level-app-icon-small.png"
   icon_large: "./assets/linus-level-app-icon-large.png"
-  default_prompt: "Use $linus-level at Linus Level 8.5 for this production codebase task."
